@@ -1,8 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [],
+  content: ["./src/**/*.{html,js,ts,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+
+      colors:{
+        "mainBackgroundColor":"#0d1117",
+        "columnBackgroundColor":"#161c22"
+      }
+    },
   },
   plugins: [],
 }

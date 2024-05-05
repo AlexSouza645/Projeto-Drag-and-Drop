@@ -1,6 +1,7 @@
 import { useState } from "react"
 import PlusIcon from "../icons/PlusIcon"
 import { Column } from "../types";
+import ColumnContainer from "./ColumnContainer";
 
 
 function KanbamBoard() {
@@ -11,7 +12,15 @@ function KanbamBoard() {
         <div className="m-auto flex min-h-screen w-full items-center overflow-x-auto overflow-y-hidden px-[40]
     justify-center">
 
-            <div className="m-auto">
+            <div className="m-auto flex gap-4">
+                <div className=" flex gap-4">
+
+                    {columns.map((col) => (
+
+                     <ColumnContainer column={col}/>
+
+                    ))}
+                </div>
                 <button onClick={() => {
                     createNewColumn()
                 }}
@@ -30,19 +39,19 @@ function KanbamBoard() {
         </div>
     )
     function createNewColumn() {
-        const columnToAdd: Column ={
+        const columnToAdd: Column = {
             id: generateId(),
-            title:`Column ${columns.length + 1}`
+            title: `Column ${columns.length + 1}`
         };
         setColumns([...columns, columnToAdd])
 
     }
 
-    function generateId(){
+    function generateId() {
 
 
         //  generate a random number between 0 and 100 
-          return  Math.floor(Math.random() * 10001 ) 
-}
+        return Math.floor(Math.random() * 10001)
+    }
 }
 export default KanbamBoard

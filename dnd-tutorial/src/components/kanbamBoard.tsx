@@ -1,26 +1,29 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import PlusIcon from "../icons/PlusIcon"
 import { Column, Id } from "../types";
 import ColumnContainer from "./ColumnContainer";
-import { DndContext } from "@dnd-kit/core";
+import { DndContext, DragOverlay, DragStartEvent } from "@dnd-kit/core";
+import { SortableContext } from "@dnd-kit/sortable";
+import { createPortal } from "react-dom";
 
 
 function KanbamBoard() {
 
     const [columns, setColumns] = useState<Column[]>([]);
-    console.log(columns)
+    const columnsId = useMemo(() => columns.map((col) => col.id), [columns])
+    const [activeColumn, setActiveColumn] = useState<Column | null>(null)
     return (
         <div className="m-auto flex min-h-screen w-full items-center overflow-x-auto overflow-y-hidden px-[40]
     justify-center">
-            <DndContext>
+            <DndContext onDragStart={onDragStart}>
                 <div className="m-auto flex gap-4">
                     <div className=" flex gap-4">
+                        <SortableContext items={columnsId}>
+                            {columns.map((col) => (
 
-                        {columns.map((col) => (
+                                <ColumnContainer key={col.id} column={col} deleteColumn={deleteColumn} />
 
-                            <ColumnContainer key={col.id} column={col} deleteColumn={deleteColumn} />
-
-                        ))}
+                            ))}</SortableContext>
                     </div>
                     <button onClick={() => {
                         createNewColumn()
@@ -36,6 +39,24 @@ function KanbamBoard() {
                         Add Column
                     </button>
                 </div>
+
+                {createPortal(
+
+                    <DragOverlay>
+                        {activeColumn && (<ColumnContainer
+                            column={activeColumn}
+                            deleteColumn={deleteColumn}
+
+                        />)}
+
+                    </DragOverlay>, document.body
+
+                )
+
+
+
+                }
+
             </DndContext >
         </div>
 
@@ -54,6 +75,14 @@ function KanbamBoard() {
     function deleteColumn(id: Id) {
         const filteredColumns = columns.filter((col) => col.id !== id);
         setColumns(filteredColumns)
+    }
+    function onDragStart(event: DragStartEvent) {
+        console.log('Drag Start', event
+        )
+        if (event.active.data.current?.type === "Column") {
+            setActiveColumn(event.active.data.current.column)
+            return
+        }
     }
 }
 function generateId() {

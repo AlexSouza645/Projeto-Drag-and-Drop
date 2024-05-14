@@ -2,8 +2,8 @@ import { useMemo, useState } from "react"
 import PlusIcon from "../icons/PlusIcon"
 import { Column, Id } from "../types";
 import ColumnContainer from "./ColumnContainer";
-import { DndContext, DragOverlay, DragStartEvent } from "@dnd-kit/core";
-import { SortableContext } from "@dnd-kit/sortable";
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 
 
@@ -15,7 +15,7 @@ function KanbamBoard() {
     return (
         <div className="m-auto flex min-h-screen w-full items-center overflow-x-auto overflow-y-hidden px-[40]
     justify-center">
-            <DndContext onDragStart={onDragStart}>
+            <DndContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
                 <div className="m-auto flex gap-4">
                     <div className=" flex gap-4">
                         <SortableContext items={columnsId}>
@@ -83,6 +83,25 @@ function KanbamBoard() {
             setActiveColumn(event.active.data.current.column)
             return
         }
+    }
+    // função para salvar o lugar onde o card foi solto
+    function onDragEnd(event: DragEndEvent) {
+        const { active, over } = event;
+        if (!over) return
+
+        const activeColumnId = active.id;
+        const overColumnId = over.id
+
+        if (activeColumnId === overColumnId) return
+
+        setColumns((columns) => {
+
+
+            const activeColumnIndex = columns.findIndex((col) => col.id === activeColumnId)
+            const overColumnIndex = columns.findIndex((col) => col.id === overColumnId)
+
+            return arrayMove(columns, activeColumnIndex, overColumnIndex)
+        })
     }
 }
 function generateId() {

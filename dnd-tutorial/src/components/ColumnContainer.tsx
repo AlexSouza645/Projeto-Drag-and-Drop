@@ -3,31 +3,39 @@ import TrashIcon from "../icons/Trashicon";
 import { Column, Id } from "../types"
 // import { transitionProperty } from "@dnd-kit/sortable/dist/hooks/defaults";
 import { CSS } from "@dnd-kit/utilities"
+import { useState } from "react";
+import PlusIcon from "../icons/PlusIcon";
 
 interface Props {
     column: Column;
     deleteColumn: (id: Id) => void;
+    updateColumn: (id: Id, title: string) => void
+    createTask: (columnId:Id)=>void
 }
 
 function ColumnContainer(props: Props) {
-    const { column, deleteColumn } = props;
+    const { column, deleteColumn, updateColumn,createTask } = props;
+
+    const [editMode, setEditMode] = useState(false)
 
     const { setNodeRef, attributes, listeners, transform, transition, isDragging } = useSortable({
         id: column.id,
         data: {
             type: "Column",
             column
-        }
+        },
+        disabled: editMode
     })
     const style = {
         transition, transform: CSS.Transform.toString(transform)
     }
 
 
-// criação  da imagem de fundo ao arrastar o card
+    // criação  da imagem de fundo ao arrastar o card
     if (isDragging) {
         return <div ref={setNodeRef} style={style} className="
-        bg-columnBackgroundColor w-[350px]    h-[500px]    max-h-[500px]    rounded-md    flex    flex-col  opacity-40 border-2 border-rose-500">  </div>
+        bg-columnBackgroundColor w-[350px]    h-[500px]    max-h-[500px]    rounded-md    flex    flex-col  opacity-40
+         border-2 border-rose-500">  </div>
     }
 
 
@@ -39,14 +47,21 @@ function ColumnContainer(props: Props) {
         >
             {/* column title */}
             <div {...attributes}
-                {...listeners}
+                {...listeners} onClick={() => { setEditMode(true) }}
                 className=" bg-mainBackgroundColor  text-md  h-[60px]  cursor-grab   rounded-md   rounded-b-none
             font-bold    border-columnBackgroundColor   border-4   flex items-center justify-between ">
                 <div className="flex gap-2">
                     <div className="flex justify-center items-center bg-columnBackgroundColor px-2 py-1 text-sm rounded-full ">0</div>
 
 
-                    {column.title}</div>
+                    {!editMode && column.title}
+                    {editMode && <input className="bg-black focus:border-rose-500 border-rounded outline-none px-2" value={column.title} onChange={(e) => {
+                        updateColumn(column.id, e.target.value)
+                    }} autoFocus onBlur={() => { setEditMode(false) }} onKeyDown={e => {
+                        if (e.key === 'Enter') setEditMode(false)
+                    }} />}
+
+                </div>
                 {/* button delete creation */}
 
                 <button onClick={() => {
@@ -61,9 +76,18 @@ function ColumnContainer(props: Props) {
             {/* // column tak container */}
             <div className=" flex flex-grow">Content</div>
             {/* // column footer */}
-            <div>
-                footer
-            </div>
+
+            <button className="flex gap-2 items-center border-columnBackgroundColor border-2 rounded-md p-4 border-x-columnBackgroundColor
+            hover:bg-mainBackgroundColor hover:text-rose-500 active:bg-black" onClick={
+                ()=>{
+                    createTask(column.id)
+                }
+            }>
+               <PlusIcon/> 
+               Add Task
+                
+
+            </button>
         </div>
     );
 }

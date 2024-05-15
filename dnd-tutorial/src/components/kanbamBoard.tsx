@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react"
 import PlusIcon from "../icons/PlusIcon"
-import { Column, Id } from "../types";
+import { Column, Id, Task } from "../types";
 import ColumnContainer from "./ColumnContainer";
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { arrayMove, SortableContext } from "@dnd-kit/sortable";
 import { createPortal } from "react-dom";
 
@@ -12,16 +12,31 @@ function KanbamBoard() {
     const [columns, setColumns] = useState<Column[]>([]);
     const columnsId = useMemo(() => columns.map((col) => col.id), [columns])
     const [activeColumn, setActiveColumn] = useState<Column | null>(null)
+
+    const [tasks, setTasks] = useState<Task>([])
+
+    // funcionalidade do botao excluir
+    const sensors = useSensors(
+
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 3
+            },
+        })
+
+    )
     return (
         <div className="m-auto flex min-h-screen w-full items-center overflow-x-auto overflow-y-hidden px-[40]
     justify-center">
-            <DndContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+            <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
                 <div className="m-auto flex gap-4">
                     <div className=" flex gap-4">
                         <SortableContext items={columnsId}>
                             {columns.map((col) => (
 
-                                <ColumnContainer key={col.id} column={col} deleteColumn={deleteColumn} />
+                                <ColumnContainer key={col.id} column={col} deleteColumn={deleteColumn}
+                                    updateColumn={updateColumn}
+                                    createTask={createTask} />
 
                             ))}</SortableContext>
                     </div>
@@ -46,6 +61,8 @@ function KanbamBoard() {
                         {activeColumn && (<ColumnContainer
                             column={activeColumn}
                             deleteColumn={deleteColumn}
+                            updateColumn={updateColumn}
+                            createTask={createTask}
 
                         />)}
 
@@ -63,6 +80,20 @@ function KanbamBoard() {
 
 
     )
+
+    // funcao criar tasks
+    function createTask(columnId: Id) {
+
+        const newTask: Task = {
+            id: generateId(),
+            columnId,
+            content: `Task ${tasks.length + 1}`,
+        }
+        setTasks([...tasks, newTask])
+    }
+
+
+
     function createNewColumn() {
         const columnToAdd: Column = {
             id: generateId(),
@@ -75,6 +106,17 @@ function KanbamBoard() {
     function deleteColumn(id: Id) {
         const filteredColumns = columns.filter((col) => col.id !== id);
         setColumns(filteredColumns)
+    }
+
+    function updateColumn(id: Id, title: string) {
+        const newColumns = columns.map((col) => {
+            if (col.id !== id) return col;
+            return { ...col, title }
+        });
+        setColumns(newColumns)
+
+
+
     }
     function onDragStart(event: DragStartEvent) {
         console.log('Drag Start', event

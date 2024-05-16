@@ -1,20 +1,26 @@
 import { useSortable } from "@dnd-kit/sortable";
 import TrashIcon from "../icons/Trashicon";
-import { Column, Id } from "../types"
+import { Column, Id, Task } from "../types"
 // import { transitionProperty } from "@dnd-kit/sortable/dist/hooks/defaults";
 import { CSS } from "@dnd-kit/utilities"
 import { useState } from "react";
 import PlusIcon from "../icons/PlusIcon";
+import TaskCard from "./TaskCard";
 
 interface Props {
     column: Column;
     deleteColumn: (id: Id) => void;
-    updateColumn: (id: Id, title: string) => void
-    createTask: (columnId:Id)=>void
+    updateColumn: (id: Id, title: string) => void;
+    createTask: (columnId: Id) => void;
+    tasks: Task[]
+    deleteTask:(id:Id)=> void
+    updateTask:(id:Id, content:string)=> void
+
+
 }
 
 function ColumnContainer(props: Props) {
-    const { column, deleteColumn, updateColumn,createTask } = props;
+    const { column, deleteColumn, updateColumn, createTask, tasks,deleteTask, updateTask } = props;
 
     const [editMode, setEditMode] = useState(false)
 
@@ -73,19 +79,27 @@ function ColumnContainer(props: Props) {
             </div>
 
 
-            {/* // column tak container */}
-            <div className=" flex flex-grow">Content</div>
-            {/* // column footer */}
+            {/* // column task container */}
+            <div className=" flex flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto">{
+                tasks.map(task => (
+                    <TaskCard key={task.id} task={task} deleteTask={deleteTask} updateTask={updateTask}/>
+                    // <div key={task.id}>{task.content}</div>
+                ))
+            }</div>
 
+
+
+
+            {/* // column footer */}
             <button className="flex gap-2 items-center border-columnBackgroundColor border-2 rounded-md p-4 border-x-columnBackgroundColor
             hover:bg-mainBackgroundColor hover:text-rose-500 active:bg-black" onClick={
-                ()=>{
-                    createTask(column.id)
-                }
-            }>
-               <PlusIcon/> 
-               Add Task
-                
+                    () => {
+                        createTask(column.id)
+                    }
+                }>
+                <PlusIcon />
+                Add Task
+
 
             </button>
         </div>

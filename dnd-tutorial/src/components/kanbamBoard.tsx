@@ -13,7 +13,7 @@ function KanbamBoard() {
     const columnsId = useMemo(() => columns.map((col) => col.id), [columns])
     const [activeColumn, setActiveColumn] = useState<Column | null>(null)
 
-    const [tasks, setTasks] = useState<Task>([])
+    const [tasks, setTasks] = useState<Task[]>([])
 
     // funcionalidade do botao excluir
     const sensors = useSensors(
@@ -36,7 +36,10 @@ function KanbamBoard() {
 
                                 <ColumnContainer key={col.id} column={col} deleteColumn={deleteColumn}
                                     updateColumn={updateColumn}
-                                    createTask={createTask} />
+                                    createTask={createTask}
+                                    deleteTask={deleteTask}
+                                    tasks={tasks.filter(task => task.columnId === col.id)}
+                                    updateTask={updateTask} />
 
                             ))}</SortableContext>
                     </div>
@@ -63,6 +66,10 @@ function KanbamBoard() {
                             deleteColumn={deleteColumn}
                             updateColumn={updateColumn}
                             createTask={createTask}
+                            deleteTask={deleteTask}
+                            updateTask={updateTask}
+                            tasks={tasks.filter(task => task.columnId === activeColumn.id)}
+
 
                         />)}
 
@@ -80,6 +87,20 @@ function KanbamBoard() {
 
 
     )
+
+    // funcao edit task
+    function updateTask(id: Id, content: string) {
+        const newTasks = tasks.map(task => {
+            if (task.id !== id) return task
+            return { ...task, content }
+        })
+        setTasks(newTasks)
+    }
+    // função delete task
+    function deleteTask(id: Id) {
+        const newTasks = tasks.filter((task) => task.id !== id)
+        setTasks(newTasks)
+    }
 
     // funcao criar tasks
     function createTask(columnId: Id) {

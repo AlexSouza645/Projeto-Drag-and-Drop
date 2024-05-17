@@ -1,4 +1,5 @@
-<img src="/src/assets/print.png"
+
+![print](https://github.com/AlexSouza645/Projeto-Drag-and-Drop/assets/59890212/2bc62310-6d82-4ab0-832b-731cb982f756)
 
 # React + TypeScript + Vite
 
